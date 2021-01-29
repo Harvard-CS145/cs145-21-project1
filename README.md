@@ -106,30 +106,6 @@ You solution should work with `k=4, 6, 8` for FatTree. We will use scripts to au
 
 ## Compare application performance between Binary Tree and FatTree
 In the following experiments, you will compare the Binary Tree topology (with `I=4`) and FatTree topology (with `k=4`). 
-You will try to run the following two applications settings on these two topologies: 
-
-* Application setting A: Running `iperf` (from h1, h2, ..., h8 to h9, h10, ..., h16)
-* Application setting B: Running `memcached` (from h1 to h9) + `iperf` (from h4 to h12)
-
-### Application setting A: 
-You will let 8 `iperf` send traffic the other 8 in a one-to-one mapping manner. 
-Run `sudo apt-get install iperf3` to install necessary dependency. Then you can use the following commands to run `iperf`. 
-
-```
-# h1 <-> h9, h2 <-> h10, h3 <-> h11, ..., h8 <-> h16
-sudo bash apps/bisec1.sh
-```
-
-Each command will start one `iperf` on each host, and let 8 of them send traffic to the remaining 8 in a one-to-one mapping manner. 
-The output of those iperf servers and clients will be stored in directory `iperf_logs`, and you can check the output to observe the throughput of each `iperf` client (ie, `h9`-`h16`).
-
-### Application setting B:
-You let `memcached` send traffic between `h1` and `h9`, and let `iperf` send traffic between `h4` and `h12`. 
-You can use the followings commands to generate traffic and run applications. 
-```
-python ./apps/trace/generate_trace.py --mchost=1,9 --iperfhost=4,12 --length=60 --file=./apps/trace/memcached_iperf.trace
-sudo python ./apps/send_traffic.py ./apps/trace/memcached_iperf.trace 1,4,9,12 60
-```
 
 ## Topology configuration
 We now try to compare these applications on the two topologies.
@@ -144,35 +120,42 @@ The question is what is a fair comparison of the two topologies. If we assume Bi
 
 That explains the bandwidth setting in the above topology figures for FatTree and Binary Tree.
 
-## Experiments 1: Compare Binary Tree bandwidth and FatTree bandwidth
-
-You need to conduct the following experiments: 
-- (Expr 1.1) running application setting A on Binary Tree topology
-- (Expr 1.2) running application setting A on FatTree topology using single core switch
-
-#### Questions 1
-You should answer the following question in your report.md (see [Submission and Grading](#submission-and-grading)) (just one or two sentences for each question mark): 
-* What is the performance of iperf under FatTree with single core switches, compared with the iperf under Binary Tree? (Experiments 1.1 and 1.2) Why? Please list the 16 iperf clients' throughput for Binary Tree and FatTree (each with 8 iperf clients' throughput). 
-
-## Experiment 2: Application isolation with two core switches on FatTree
+## Application isolation with two core switches on FatTree
 In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. 
 
-After you have finished the new controller for FatTree, you need to run the following experiment: 
-- (Expr 2.1) running application setting B on FatTree topology using single core switch
-- (Expr 2.2) running application setting B on FatTree topology using two core switches
+After you have finished the new controller for FatTree, you need to run the following experiments: 
 
-#### Questions 2
+### Application setting A:
+You let `memcached` send traffic between `h1` and `h9`, and let `iperf` send traffic between `h4` and `h12`. 
+You can use the followings commands to generate traffic and run applications. 
+```
+python ./apps/trace/generate_trace.py --mchost=1,9 --iperfhost=4,12 --length=60 --file=./apps/trace/memcached_iperf.trace
+sudo python ./apps/send_traffic.py ./apps/trace/memcached_iperf.trace 1,4,9,12 60
+```
+
+### Experiments 1
+
+- (Expr 1.1) running application setting A on FatTree topology using single core switch
+- (Expr 1.2) running application setting A on FatTree topology using two core switches
+- (Expr 1.3) running application setting A on Binary Tree topology
+
+### Questions
 You should answer the following questions in your report.md (see [Submission and Grading](#submission-and-grading))) (just one or two sentences for each question mark):
 
-* What is the performance of memcached under FatTree with two core switches, compared with the memcached under FatTree with only one core switch? (Experiments 2.1 and 2.2) Why? Please include the screenshots of two memcached latency results. 
-* What is the performance of iperf under FatTree with two core switches, compared with the iperf under FatTree with only one core switch? (Experiments 2.1 and 2.2) Why? Please include the screenshots of two iperf throughput results. 
+* What is the performance of memcached under FatTree with two core switches, compared with the memcached under FatTree with only one core switch and memcached under Binary Tree? (Experiments 1.1, 1.2, and 1.3) Why? Please include the screenshots of three memcached latency results. 
+* What is the performance of iperf under FatTree with two core switches, compared with the iperf under FatTree with only one core switch and iperf under Binary Tree? (Experiments 1.1, 1.2, and 1.3) Why? Please include the screenshots of three iperf throughput results. 
 
-#### Food for thought
-What will happen if you replace the `memcached` with the video application (ie, running video between `h1` and `h9`)? Would the answer to Question 2 still hold? Why? 
+### Optional experiment (This not extra credit but just for you to have some fun experiments)
+What will happen if you replace the `memcached` with the video application used in Project 0 (i.e.,, running video between `h1` and `h9`)? What would you observe? Why?
+
 
 ## P4 Network Visualizer for Debugging
 Daniel Rodrigues who took CS145 last year made this [P4 network Visualizer](https://github.com/Danieltech99/P4-Network-Visualizer) tool as his final project. 
 The tool can show the link traffic rate in real time, pretty useful for debugging -- thanks to Daniel. You are free to use this great tool! 
+
+Note that we havn't fully tested the tool. We may not have timely response to fix the problems you face when using this tool. Please file tickets on that github if you face problems.
+
+You will have a chance to contribute to this class for the final project. So start thinking about what optional project you may do as you work on Project 1-6. 
 
 ## Submission and Grading
 
@@ -181,7 +164,7 @@ You are expected to submit the following documents:
 
 1. Code: the programs that you write to generate the FatTree topologies with different `k`s (`topo_fat_gen.py`), and the controller programs (with `k` as an input parameter) that you write to generate the forwarding rules for FatTree topologies with one core switch and two core switches (`controller_fat_onecore.py` and `controller_fat_twocore.py`). We will use scripts to automatically test them.
 
-1. report/report.md: In this file you should describe how you generate the FatTree topologies, how to use your topology generating programs, how you generate the forwarding rules for different routing policies, answer the questions posted above, your iperf throughput in Question 1, and your memcached latency and iperf throughput screenshots in Qustion 2. 
+1. report/report.md: In this file you should describe how you generate the FatTree topologies, how to use your topology generating programs, how you generate the forwarding rules for different routing policies, answer the questions posted above, and your memcached latency and iperf throughput screenshots in [Qustions](#questions). 
 
 ### Grading
 
