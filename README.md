@@ -127,6 +127,9 @@ After you have finished the new controller for FatTree, you need to run the foll
 
 ### Application setting A:
 You let `memcached` send traffic between `h1` and `h9`, and let `iperf` send traffic between `h4` and `h12`. 
+
+**Hint:** In this setting, switch `a1` can differentiate `memcached` and `iperf` traffic by looking at each packet's `dmac`, and route these packets to either switch `c1` or `c2` based on the `dmac` value. 
+
 You can use the followings commands to generate traffic and run applications. 
 ```
 python ./apps/trace/generate_trace.py --mchost=1,9 --iperfhost=4,12 --length=60 --file=./apps/trace/memcached_iperf.trace
