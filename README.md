@@ -60,7 +60,7 @@ You will now extend the Binary Tree to a FatTree topology by modifying `topology
 Below, we provide detailed steps for creating a FatTree topology with k=4; you solution should work for `k=4, 6, 8`.
 
 ### Step One: Create the Topology
-You should write a script ``topology/topo_fat_gen.py`` to generate the topology file. Your script should take *k* as the input and output to ``topology/p4app_fat.json``. For example, to generate the FatTree topology with 16 hosts, we will run:
+You should write a script `topology/topo_fat_gen.py` to generate the topology file. Your script should take *k* as the input and output to `topology/p4app_fat.json`. For example, to generate the FatTree topology with 16 hosts, we will run:
 ```
 python topology/topo_fat_gen.py 4
 ```
@@ -79,13 +79,13 @@ Your main goal is to enable all-to-all communications in the topology (i.e., the
 You can test your solution using ``pingall`` to test the solution. 
 Currently, you should **route all the traffic through the first Core switch (*i.e.,* switch c1)**. We will explore routing through multiple switches later. 
 
-**Tip 1:** You need to treat the switches each layer separately. For the switches in each layer, you may install one rule for each host indicating which port it needs to be forwarded.
+**Hint 1:** You need to treat the switches each layer separately. For the switches in each layer, you may install one rule for each host indicating which port it needs to be forwarded.
 
-**Tip 2:** How do you compute the port number for each host without listing them all in an array?
+**Hint 2:** How do you compute the port number for each host without listing them all in an array?
 
-**Tip 3:** In Mininet, switches do not support packets coming into and coming out from the same port. Your forwarding rules should avoid this kind of behavior since it will cause failure in ``pingall``.
+**Hint 3:** In Mininet, switches do not support packets coming into and coming out from the same port. Your forwarding rules should avoid this kind of behavior since it will cause failure in `pingall`.
 
-**Tip 4:** For debugging, you may start by testing ping between a pair of hosts before trying out pingall
+**Hint 4:** For debugging, you may start by testing ping between a pair of hosts before trying out pingall
 
 **Food for thought:** Do you really need one rule for each host?
 
@@ -101,7 +101,7 @@ Finally, we can run the automatic tests as follows:
 sudo python3 tests/validate_fat_topo.py 4
 ```
 
-You solution should work with `k=4, 6, 8` for FatTree. We will use scripts to automatically test your code for each of `k`.Your score will be halved if you write specific cases for each of `k`. We will manually check your code to identify this problem. 
+**You solution should work with `k=4, 6, 8` for FatTree.** We will use scripts to automatically test your code for each of `k`.Your score will be halved if you write specific cases for each of `k`. We will manually check your code to identify this problem. 
 
 
 ## Compare application performance between Binary Tree and FatTree
@@ -121,14 +121,9 @@ The question is what is a fair comparison of the two topologies. If we assume Bi
 That explains the bandwidth setting in the above topology figures for FatTree and Binary Tree.
 
 ## Application isolation with two core switches on FatTree
-In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. 
 
-After you have finished the new controller for FatTree, you need to run the following experiments: 
-
-### Application setting A:
+### Application setting
 You let `memcached` send traffic between `h1` and `h9`, and let `iperf` send traffic between `h4` and `h12`. 
-
-**Hint:** In this setting, switch `a1` can differentiate `memcached` and `iperf` traffic by looking at each packet's `dmac`, and route these packets to either switch `c1` or `c2` based on the `dmac` value. 
 
 You can use the followings commands to generate traffic and run applications. 
 ```
@@ -136,17 +131,24 @@ python ./apps/trace/generate_trace.py --mchost=1,9 --iperfhost=4,12 --length=60 
 sudo python ./apps/send_traffic.py ./apps/trace/memcached_iperf.trace 1,4,9,12 60
 ```
 
-### Experiments 1
+### Write a two-core controller
+In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. 
 
-- (Expr 1.1) running application setting A on FatTree topology using single core switch
-- (Expr 1.2) running application setting A on FatTree topology using two core switches
-- (Expr 1.3) running application setting A on Binary Tree topology
+Given that you know Application setting A above, you can design routing rules based on each packet's `dmac` in your controller. For example, you can install a rule that route all traffic to `h9` to core switch `c1` and all traffic to `h12` to core `c2`.
+
+After you have finished the new controller for FatTree, you need to run the following experiments: 
+
+### Experiments
+
+- (Expr 1) running application setting A on FatTree topology using single core switch
+- (Expr 2) running application setting A on FatTree topology using two core switches
+- (Expr 3) running application setting A on Binary Tree topology
 
 ### Questions
 You should answer the following questions in your report.md (see [Submission and Grading](#submission-and-grading))) (just one or two sentences for each question mark):
 
-* What is the performance of memcached under FatTree with two core switches, compared with the memcached under FatTree with only one core switch and memcached under Binary Tree? (Experiments 1.1, 1.2, and 1.3) Why? Please include the screenshots of three memcached latency results. 
-* What is the performance of iperf under FatTree with two core switches, compared with the iperf under FatTree with only one core switch and iperf under Binary Tree? (Experiments 1.1, 1.2, and 1.3) Why? Please include the screenshots of three iperf throughput results. 
+* What is the performance of memcached under FatTree with two core switches, compared with the memcached under FatTree with only one core switch and memcached under Binary Tree? (Experiments 1, 2, and 3) Why? Please include the screenshots of three memcached latency results. 
+* What is the performance of iperf under FatTree with two core switches, compared with the iperf under FatTree with only one core switch and iperf under Binary Tree? (Experiments 1, 2, and 3) Why? Please include the screenshots of three iperf throughput results. 
 
 ### Optional experiment (This not extra credit but just for you to have some fun experiments)
 What will happen if you replace the `memcached` with the video application used in Project 0 (i.e.,, running video between `h1` and `h9`)? What would you observe? Why?
@@ -165,9 +167,9 @@ You will have a chance to contribute to this class for the final project. So sta
 ### What to submit
 You are expected to submit the following documents:
 
-1. Code: the programs that you write to generate the FatTree topologies with different `k`s (`topo_fat_gen.py`), and the controller programs (with `k` as an input parameter) that you write to generate the forwarding rules for FatTree topologies with one core switch and two core switches (`controller_fat_onecore.py` and `controller_fat_twocore.py`). We will use scripts to automatically test them.
+1. Code: the programs that you write to generate the FatTree topologies with different `k` (`topo_fat_gen.py`), and the controller programs (with `k` as an input parameter) that you write to generate the forwarding rules for FatTree topologies with one core switch and two core switches (`controller_fat_onecore.py` and `controller_fat_twocore.py`). We will use scripts to automatically test them.
 
-1. report/report.md: In this file you should describe how you generate the FatTree topologies, how to use your topology generating programs, how you generate the forwarding rules for different routing policies, answer the questions posted above, and your memcached latency and iperf throughput screenshots in [Qustions](#questions). 
+1. report/report.md: In this file you should describe how you generate the FatTree topologies, how to use your topology generating programs, how you generate the forwarding rules for different routing policies, answer the questions posted above, and your memcached latency and iperf throughput screenshots in [Questions](#questions). 
 
 ### Grading
 
@@ -175,7 +177,7 @@ The total grades is 100:
 
 - 20: For your description of how you generate topologies (links and routing rules) in report.md.
 - 10: For your answers to the questions in report.md.
-- 60: We will test the connectivity of your solutions for FatTree with different 'k'; each with score of 20. The score is proportional to the percentage of pairs that are connected. (60 means all can be connected). Your scores will be halved if you write separate lines of code for different k values.
+- 60: We will test the connectivity of your solutions for FatTree with different `k`; each with score of 20. The score is proportional to the percentage of pairs that are connected. (60 means all can be connected). Your scores will be halved if you write separate lines of code for different k values.
 - 10: We will use scripts to automatically check the correctness of your solutions for separated core switches forwarding scheme.
 - Deductions based on late policies
 
