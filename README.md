@@ -132,9 +132,10 @@ sudo python ./apps/send_traffic.py ./apps/trace/memcached_iperf.trace 1,4,9,12 6
 ```
 
 ### Write a two-core controller
-In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. 
+In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. Your new controller should also make mininet `pingall` succeed (just for the case of `k=4`). 
 
-Given that you know Application setting A above, you can design routing rules based on each packet's `dmac` in your controller. For example, you can install a rule that route all traffic to `h9` to core switch `c1` and all traffic to `h12` to core `c2`.
+Given that you know Application setting A above, you can design routing rules based on each packet's `dmac` in your controller. 
+For ease of grading, you should install rules that routes all traffic to hosts with odd number (ie, `h1,3,5,7,9,11,13,15`) to core switch `c1`, and all traffic to hosts with even number (ie, `h2,4,6,8,10,12,14,16`) to core switch `c2`. 
 
 After you have finished the new controller for FatTree, you need to run the following experiments: 
 
@@ -167,7 +168,7 @@ You will have a chance to contribute to this class for the final project. So sta
 ### What to submit
 You are expected to submit the following documents:
 
-1. Code: the programs that you write to generate the FatTree topologies with different `k` (`topo_fat_gen.py`), and the controller programs (with `k` as an input parameter) that you write to generate the forwarding rules for FatTree topologies with one core switch and two core switches (`controller_fat_onecore.py` and `controller_fat_twocore.py`). We will use scripts to automatically test them.
+1. Code: the programs that you write to generate the FatTree topologies with different `k` (`topo_fat_gen.py`), and the controller programs (with `k` as an input parameter) that you write to generate the forwarding rules for FatTree topologies with one core switch and two core switches (`controller_fat_onecore.py` and `controller_fat_twocore.py`). We will use scripts to automatically test them (i.e., `tests/validate_fat_topo.py`).
 
 1. report/report.md: In this file you should describe how you generate the FatTree topologies, how to use your topology generating programs, how you generate the forwarding rules for different routing policies, answer the questions posted above, and your memcached latency and iperf throughput screenshots in [Questions](#questions). 
 
