@@ -132,12 +132,12 @@ sudo python ./apps/send_traffic.py ./apps/trace/memcached_iperf.trace 1,4,9,12 6
 ```
 
 ### Write a two-core controller
-In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. Your new controller should also make mininet `pingall` succeed (just for the case of `k=4`). 
+In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. Your new controller should also make mininet `pingall` succeed (for cases of `k=4, 6, 8`). 
 
 Given that you know Application setting A above, you can design routing rules based on each packet's `dmac` in your controller. 
-For ease of grading, you should install rules that routes all traffic to hosts with odd number (ie, `h1,3,5,7,9,11,13,15`) to core switch `c1`, and all traffic to hosts with even number (ie, `h2,4,6,8,10,12,14,16`) to core switch `c2`. 
+For ease of grading, you should install rules that routes all traffic to hosts with odd number (eg, `h1,3,5,7,9,11,13,15`) to core switch `c1`, and all traffic to hosts with even number (eg, `h2,4,6,8,10,12,14,16`) to core switch `c2`. 
 
-After you have finished the new controller for FatTree, you need to run the following experiments: 
+After you have finished the new controller for FatTree, you need to run the following experiments (you only need to run these experiments for `k=4` case): 
 
 ### Experiments
 
