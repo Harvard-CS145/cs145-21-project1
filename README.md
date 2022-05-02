@@ -83,9 +83,9 @@ Currently, you should **route all the traffic through the first Core switch (*i.
 
 **Hint 2:** How do you compute the port number for each host without listing them all in an array?
 
-**Hint 3:** In Mininet, switches do not support packets coming into and coming out from the same port. Your forwarding rules should avoid this kind of behavior since it will cause failure in `pingall`.
+**Hint 3:** In Mininet, switches do not support the same packets coming into and then immediately coming out from the same port. For example, you cannot let a packet goes from h1 to t1, and set rules on t1 to let the packet route back to h1 immediately. Your forwarding rules should avoid this kind of behavior since it will cause failures in `pingall`.
 
-**Hint 4:** For debugging, you may start by testing ping between a pair of hosts before trying out pingall
+**Hint 4:** For debugging, you may start by testing ping between a pair of hosts before trying out `pingall`.
 
 **Food for thought:** Do you really need one rule for each host?
 
@@ -132,18 +132,17 @@ sudo python ./apps/send_traffic.py ./apps/trace/memcached_iperf.trace 1,4,9,12 6
 ```
 
 ### Write a two-core controller
-In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: let the `memcached` traffic go through core switch c1 and `iperf` traffic go through core switch c2. Your new controller should also make mininet `pingall` succeed (for cases of `k=4, 6, 8`). 
+In this experiment, we isolate the traffic of `memcached` and `iperf` applications by routing their traffic to different core switches in FatTree topology. In particular, you need to write a new controller `controller_fat_twocore.py` that routes traffic using two core switches: For ease of grading, you should install rules that routes all traffic to hosts with odd number (i.e., those `dmac` addresses belong to `h1,3,5,7,9,11,13,15`) to core switch `c1`, and all traffic to hosts with even number (i.e., those `dmac` addresses belong to `h2,4,6,8,10,12,14,16`) to core switch `c2`. Given that `memcached` send traffic between `h1` and `h9`, the above rules will direct `memcached` traffic to `c1`. Similarly, `iperf` traffic between `h4` and `h12` goes to `c2`. Your new controller should also make mininet `pingall` succeed (for cases of `k=4, 6, 8`). 
 
-Given that you know Application setting A above, you can design routing rules based on each packet's `dmac` in your controller. 
-For ease of grading, you should install rules that routes all traffic to hosts with odd number (eg, `h1,3,5,7,9,11,13,15`) to core switch `c1`, and all traffic to hosts with even number (eg, `h2,4,6,8,10,12,14,16`) to core switch `c2`. 
+Note that the above routing rules are just for your convenience. In practice, we identify memcached and iperf trraffic based on port numbers and traffic patterns.
 
 After you have finished the new controller for FatTree, you need to run the following experiments (you only need to run these experiments for `k=4` case): 
 
 ### Experiments
 
-- (Expr 1) running application setting A on FatTree topology using single core switch
-- (Expr 2) running application setting A on FatTree topology using two core switches
-- (Expr 3) running application setting A on Binary Tree topology
+- (Expr 1) running the application setting on FatTree topology using single core switch
+- (Expr 2) running the application setting on FatTree topology using two core switches
+- (Expr 3) running the application setting on Binary Tree topology
 
 ### Questions
 You should answer the following questions in your report.md (see [Submission and Grading](#submission-and-grading))) (just one or two sentences for each question mark):
@@ -152,7 +151,7 @@ You should answer the following questions in your report.md (see [Submission and
 * What is the performance of iperf under FatTree with two core switches, compared with the iperf under FatTree with only one core switch and iperf under Binary Tree? (Experiments 1, 2, and 3) Why? Please include the screenshots of three iperf throughput results. 
 
 ### Optional experiment (This not extra credit but just for you to have some fun experiments)
-What will happen if you replace the `memcached` with the video application used in Project 0 (i.e.,, running video between `h1` and `h9`)? What would you observe? Why?
+What will happen if you replace the `memcached` with the video application used in Project 0 (i.e., running video between `h1` and `h9`)? What would you observe? Why?
 
 
 ## P4 Network Visualizer for Debugging
